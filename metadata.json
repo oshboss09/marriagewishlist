@@ -1,0 +1,6 @@
+{
+  "name": "Kalyanam - Registry & Shagun",
+  "description": "Multi-store Indian wedding registry with 48-hr reservation anti-collision, group gifting, and direct-to-bank UPI Shagun.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
