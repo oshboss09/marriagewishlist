@@ -3,8 +3,6 @@ import {
   Gift, 
   Heart, 
   MapPin, 
-  ShieldCheck, 
-  Sparkles,
   Calendar
 } from 'lucide-react';
 import { Wedding } from '../types';
@@ -56,8 +54,8 @@ export const WeddingHero: React.FC<WeddingHeroProps> = ({
           </div>
 
           {/* Heading Tag */}
-          <div className="text-[11px] font-medium tracking-[0.22em] uppercase text-[#9C7A4E] mb-3">
-            Wedding Registry & Shagun
+          <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[#9C7A4E] mb-3">
+            Wishlist
           </div>
 
           {/* Couple Names - Grand Editorial Typography */}
@@ -109,7 +107,7 @@ export const WeddingHero: React.FC<WeddingHeroProps> = ({
               className="px-7 py-3 bg-[#FAF7F2] hover:bg-[#F3EDE4] text-[#4A1521] border border-[#D5C7B5] rounded-xl text-xs font-semibold tracking-wider uppercase transition-all shadow-xs flex items-center gap-2"
             >
               <Heart className="w-4 h-4 text-[#7A1F2D]" />
-              <span>Offer Shagun (UPI)</span>
+              <span>Send a Blessing (UPI)</span>
             </button>
 
             <button
@@ -121,23 +119,6 @@ export const WeddingHero: React.FC<WeddingHeroProps> = ({
             </button>
           </div>
 
-          {/* Understated Luxury Guarantees */}
-          <div className="pt-10 mt-8 border-t border-[#EFE8DD] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[#7A6D63]">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#9C7A4E]" />
-              Direct Retailer Orders (Amazon, Croma, Pepperfry)
-            </span>
-            <span className="text-[#D5C7B5]">•</span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#9C7A4E]" />
-              Direct UPI into Couple's Account (Zero Fees)
-            </span>
-            <span className="text-[#D5C7B5]">•</span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#9C7A4E]" />
-              48-Hour Duplicate Prevention
-            </span>
-          </div>
         </div>
       </div>
     </div>

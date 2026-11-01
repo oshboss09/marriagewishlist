@@ -17,6 +17,14 @@ export function loadWedding(): Wedding {
         saveWedding(INITIAL_WEDDING);
         return INITIAL_WEDDING;
       }
+      if (!parsed.adminPin) {
+        parsed.adminPin = '2026';
+        saveWedding(parsed);
+      }
+      if (parsed.story && parsed.story.includes('We worked in Jio together')) {
+        parsed.story = INITIAL_WEDDING.story;
+        saveWedding(parsed);
+      }
       return parsed;
     }
   } catch (e) {
@@ -43,6 +51,14 @@ export function loadItems(): RegistryItem[] {
       items = INITIAL_REGISTRY_ITEMS;
       saveItems(items);
       return items;
+    }
+
+    // Merge any missing initial items so new luxury items appear
+    const existingIds = new Set(items.map((i) => i.id));
+    const missingItems = INITIAL_REGISTRY_ITEMS.filter((i) => !existingIds.has(i.id));
+    if (missingItems.length > 0) {
+      items = [...items, ...missingItems];
+      saveItems(items);
     }
 
     // Check for expired reservations and auto-revert to available

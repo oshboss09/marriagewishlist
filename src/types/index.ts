@@ -95,6 +95,7 @@ export interface Wedding {
   bankDetails: BankDetails;
   deliveryAddress: DeliveryAddress;
   inviteCode: string;
+  adminPin?: string;
   enableAffiliateTags: boolean;
   affiliateTagId?: string;
 }

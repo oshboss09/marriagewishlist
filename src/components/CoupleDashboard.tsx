@@ -17,7 +17,8 @@ import {
   Sparkles, 
   CheckCircle2, 
   Link as LinkIcon,
-  CheckCheck
+  CheckCheck,
+  Share2
 } from 'lucide-react';
 import { Wedding, RegistryItem, ShagunGift, StoreName, ItemCategory, ItemPriority } from '../types';
 import { formatINR } from '../utils/upi';
@@ -36,6 +37,7 @@ interface CoupleDashboardProps {
   onToggleContributionReceived: (itemId: string, contributionId: string) => void;
   onManuallyReleaseReservation: (itemId: string) => void;
   onSwitchToGuestView: () => void;
+  onOpenShareModal?: () => void;
 }
 
 export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
@@ -50,6 +52,7 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
   onToggleContributionReceived,
   onManuallyReleaseReservation,
   onSwitchToGuestView,
+  onOpenShareModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'add_item' | 'ledger' | 'manage_items' | 'settings'>('overview');
 
@@ -215,6 +218,17 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5">
+            {onOpenShareModal && (
+              <button
+                onClick={onOpenShareModal}
+                className="px-3.5 py-2 bg-[#5A1C29] hover:bg-[#682332] text-[#F5EFEB] border border-[#9C7A4E]/40 rounded-xl text-xs font-medium transition-colors flex items-center gap-1.5 shadow-xs"
+                title="Get shareable guest link and invite QR code"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#C5A880]" />
+                <span>Share Links & QR</span>
+              </button>
+            )}
+
             <button
               onClick={() => exportGiftsToCSV(items, shagunList, wedding)}
               className="px-3.5 py-2 bg-[#5A1C29] hover:bg-[#682332] text-[#F5EFEB] border border-[#9C7A4E]/40 rounded-xl text-xs font-medium transition-colors flex items-center gap-1.5 shadow-xs"

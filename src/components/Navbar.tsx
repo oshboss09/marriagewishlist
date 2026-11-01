@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { 
-  Copy, 
-  Check, 
+  Share2, 
   MapPin, 
   Sliders, 
   RotateCcw, 
   Clock, 
   Eye, 
-  Settings2
+  Settings2,
+  Lock,
+  LogOut
 } from 'lucide-react';
 import { Wedding, GuestProfile } from '../types';
-import { copyToClipboard } from '../utils/upi';
 import { resetAllDataToDefault } from '../utils/storage';
 
 interface NavbarProps {
@@ -20,6 +20,7 @@ interface NavbarProps {
   onRoleChange: (role: 'guest' | 'couple') => void;
   onOpenAddressDrawer: () => void;
   onOpenGuestLogin: () => void;
+  onOpenShareModal: () => void;
   onFastForwardAllReservations: () => void;
 }
 
@@ -30,18 +31,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRoleChange,
   onOpenAddressDrawer,
   onOpenGuestLogin,
+  onOpenShareModal,
   onFastForwardAllReservations,
 }) => {
-  const [copiedLink, setCopiedLink] = useState(false);
   const [showDemoMenu, setShowDemoMenu] = useState(false);
 
-  const handleCopyInviteLink = async () => {
-    const inviteUrl = `${window.location.origin}/?wedding=${wedding.slug}`;
-    const success = await copyToClipboard(inviteUrl);
-    if (success) {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
+  const handleExitAdmin = () => {
+    localStorage.removeItem('kalyanam_admin_auth');
+    try {
+      window.history.pushState(null, '', window.location.pathname.replace('/admin', '') || '/');
+    } catch (e) {
+      // ignore
     }
+    onRoleChange('guest');
+  };
+
+  const handleViewPublicWishlist = () => {
+    try {
+      window.history.pushState(null, '', '/');
+    } catch (e) {
+      // ignore
+    }
+    onRoleChange('guest');
   };
 
   return (
@@ -57,123 +68,110 @@ export const Navbar: React.FC<NavbarProps> = ({
               {wedding.brideName} <span className="font-editorial italic text-[#7A1F2D]">&</span> {wedding.groomName}
             </div>
             <p className="text-[10px] text-[#8A7B70] tracking-widest uppercase font-light">
-              Wedding Registry
+              {currentRole === 'couple' ? 'Couple Admin Dashboard' : 'Wishlist'}
             </p>
           </div>
         </div>
 
-        {/* Center: Mode Switcher */}
-        <div className="bg-[#EFE8DD] p-1 rounded-full flex items-center text-xs">
-          <button
-            onClick={() => onRoleChange('guest')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-              currentRole === 'guest'
-                ? 'bg-white text-[#4A1521] shadow-xs'
-                : 'text-[#6B5E55] hover:text-[#2C2420]'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5 text-[#7A1F2D]" />
-            <span>Guest View</span>
-          </button>
-
-          <button
-            onClick={() => onRoleChange('couple')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-              currentRole === 'couple'
-                ? 'bg-[#4A1521] text-[#FAF7F2] shadow-xs'
-                : 'text-[#6B5E55] hover:text-[#2C2420]'
-            }`}
-          >
-            <Settings2 className="w-3.5 h-3.5 text-[#C5A880]" />
-            <span>Couple Dashboard</span>
-          </button>
-        </div>
-
-        {/* Right Side */}
+        {/* Right Side Controls */}
         <div className="flex items-center gap-2">
-          {/* Copy Invite Link */}
-          <button
-            onClick={handleCopyInviteLink}
-            className={`hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
-              copiedLink 
-                ? 'bg-[#EBF3ED] border-[#C2DEC9] text-[#22543D]'
-                : 'bg-white hover:bg-[#F6F1EA] border-[#E0D5C7] text-[#5A4D45]'
-            }`}
-          >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5 text-[#9C7A4E]" />}
-            <span>{copiedLink ? 'Link Copied' : 'Invite Link'}</span>
-          </button>
-
-          {/* Delivery Address */}
-          <button
-            onClick={onOpenAddressDrawer}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F3EDE4] hover:bg-[#EAE0D4] text-[#4A1521] border border-[#DDD2C4] transition-colors"
-          >
-            <MapPin className="w-3.5 h-3.5 text-[#7A1F2D]" />
-            <span>Address</span>
-          </button>
-
-          {/* Guest Profile */}
-          <button
-            onClick={onOpenGuestLogin}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white border border-[#E0D5C7] text-[#4A1521] hover:bg-[#F8F4EE] transition-colors"
-          >
-            <div className="w-5 h-5 rounded-full bg-[#EFE8DD] text-[#4A1521] flex items-center justify-center text-[10px] font-serif font-medium">
-              {currentGuest.name.charAt(0)}
-            </div>
-            <span className="hidden sm:inline max-w-[90px] truncate text-xs">{currentGuest.name}</span>
-          </button>
-
-          {/* Settings / Fast-Forward */}
-          <div className="relative">
-            <button
-              onClick={() => setShowDemoMenu(!showDemoMenu)}
-              className="p-1.5 text-[#7A6D63] hover:text-[#2C2420] hover:bg-[#EFE8DD] rounded-lg transition-colors"
-              title="Test tools"
-            >
-              <Sliders className="w-4 h-4" />
-            </button>
-
-            {showDemoMenu && (
-              <div 
-                className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E0D5C7] py-1.5 text-xs text-[#4A3E38] z-50 animate-in fade-in"
-                onClick={() => setShowDemoMenu(false)}
+          {/* If couple is logged in on admin view: show "View Public Wishlist" & Logout */}
+          {currentRole === 'couple' ? (
+            <>
+              <button
+                onClick={handleViewPublicWishlist}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white hover:bg-[#F6F1EA] border border-[#D5C7B5] text-[#4A1521] transition-colors shadow-2xs"
+                title="Preview public guest wishlist"
               >
-                <div className="px-3 py-1.5 border-b border-[#EFE8DD] font-medium uppercase text-[10px] text-[#9C7A4E] tracking-wider">
-                  Registry Utilities
+                <Eye className="w-3.5 h-3.5 text-[#7A1F2D]" />
+                <span className="hidden sm:inline">View Public Wishlist</span>
+                <span className="sm:hidden">Preview</span>
+              </button>
+
+              <button
+                onClick={onOpenShareModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#4A1521] hover:bg-[#3A101A] text-[#FAF7F2] transition-colors shadow-xs"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#C5A880]" />
+                <span className="hidden sm:inline">Share Links</span>
+                <span className="sm:hidden">Share</span>
+              </button>
+
+              <button
+                onClick={handleExitAdmin}
+                className="p-1.5 text-[#8A7B70] hover:text-[#4A1521] hover:bg-[#EFE8DD] rounded-lg transition-colors"
+                title="Lock & Exit Admin"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            /* Guest View: Clean and minimal header without any admin toggle */
+            <>
+              {/* Delivery Address */}
+              <button
+                onClick={onOpenAddressDrawer}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F3EDE4] hover:bg-[#EAE0D4] text-[#4A1521] border border-[#DDD2C4] transition-colors"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#7A1F2D]" />
+                <span>Shipping Address</span>
+              </button>
+
+              {/* Guest Profile */}
+              <button
+                onClick={onOpenGuestLogin}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white border border-[#E0D5C7] text-[#4A1521] hover:bg-[#F8F4EE] transition-colors"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#EFE8DD] text-[#4A1521] flex items-center justify-center text-[10px] font-serif font-medium">
+                  {currentGuest.name.charAt(0)}
                 </div>
+                <span className="hidden sm:inline max-w-[90px] truncate text-xs">{currentGuest.name}</span>
+              </button>
+
+              {/* Developer / Demo Tools */}
+              <div className="relative">
                 <button
-                  onClick={onFastForwardAllReservations}
-                  className="w-full px-3 py-2 text-left hover:bg-[#FAF7F2] flex items-center gap-2 text-[#4A1521]"
+                  onClick={() => setShowDemoMenu(!showDemoMenu)}
+                  className="p-1.5 text-[#7A6D63] hover:text-[#2C2420] hover:bg-[#EFE8DD] rounded-lg transition-colors"
+                  title="Test tools"
                 >
-                  <Clock className="w-3.5 h-3.5 text-[#9C7A4E]" />
-                  <span>Fast-Forward 48h (Auto-Release)</span>
+                  <Sliders className="w-4 h-4" />
                 </button>
-                <button
-                  onClick={onOpenAddressDrawer}
-                  className="w-full px-3 py-2 text-left hover:bg-[#FAF7F2] flex items-center gap-2"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-[#7A6D63]" />
-                  <span>View Delivery Address</span>
-                </button>
-                <button
-                  onClick={handleCopyInviteLink}
-                  className="w-full px-3 py-2 text-left hover:bg-[#FAF7F2] flex items-center gap-2"
-                >
-                  <Copy className="w-3.5 h-3.5 text-[#7A6D63]" />
-                  <span>Copy Invite Link</span>
-                </button>
-                <div className="border-t border-[#EFE8DD] my-1" />
-                <button
-                  onClick={resetAllDataToDefault}
-                  className="w-full px-3 py-2 text-left hover:bg-[#FAF7F2] text-[#7A1F2D] flex items-center gap-2"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-[#7A1F2D]" />
-                  <span>Reset Sample Data</span>
-                </button>
+
+                {showDemoMenu && (
+                  <div 
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E0D5C7] py-1.5 text-xs text-[#4A3E38] z-50 animate-in fade-in"
+                    onClick={() => setShowDemoMenu(false)}
+                  >
+                    <div className="px-3 py-2 border-b border-[#EFE8DD]">
+                      <p className="font-semibold text-[11px] text-[#4A1521]">Developer Simulation Tools</p>
+                      <p className="text-[10px] text-[#8A7B70]">Test 48h holds and sample data</p>
+                    </div>
+
+                    <button
+                      onClick={onFastForwardAllReservations}
+                      className="w-full text-left px-3 py-2 hover:bg-[#FAF7F2] text-xs flex items-center gap-2 text-[#4A3E38]"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-[#9C7A4E]" />
+                      <span>Fast-forward 48h holds</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Reset all demo data back to Oyeshi & Nishant initial state?')) {
+                          resetAllDataToDefault();
+                        }
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-rose-50 text-rose-700 text-xs flex items-center gap-2 border-t border-[#EFE8DD]"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset All Demo Data</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
     </header>

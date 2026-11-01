@@ -76,7 +76,7 @@ export const BlessingWall: React.FC<BlessingWallProps> = ({
             The Blessing Wall
           </h2>
           <p className="font-editorial text-lg text-[#6B5E55] italic mt-1.5 max-w-lg font-normal">
-            Heartfelt words, love, and Shagun shared with Oyeshi & Nishant by family and friends.
+            Heartfelt words, love, and blessings shared with Oyeshi & Nishant by family and friends.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export const BlessingWall: React.FC<BlessingWallProps> = ({
                 filterType === 'shagun' ? 'bg-white shadow-xs text-[#4A1521]' : 'text-[#6B5E55] hover:text-[#2C2420]'
               }`}
             >
-              Shagun
+              Blessings
             </button>
             <button
               onClick={() => setFilterType('gifts')}

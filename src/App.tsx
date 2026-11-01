@@ -20,6 +20,8 @@ import { GroupGiftModal } from './components/GroupGiftModal';
 import { ShagunModal } from './components/ShagunModal';
 import { DeliveryAddressDrawer } from './components/DeliveryAddressDrawer';
 import { GuestLoginModal } from './components/GuestLoginModal';
+import { ShareAccessModal } from './components/ShareAccessModal';
+import { AdminPinModal } from './components/AdminPinModal';
 import { 
   ShieldCheck, 
   HelpCircle, 
@@ -43,9 +45,50 @@ export default function App() {
   const [isAddressDrawerOpen, setIsAddressDrawerOpen] = useState(false);
   const [isGuestLoginOpen, setIsGuestLoginOpen] = useState(false);
   const [isShagunModalOpen, setIsShagunModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAdminPinModalOpen, setIsAdminPinModalOpen] = useState(false);
   const [selectedReserveItem, setSelectedReserveItem] = useState<RegistryItem | null>(null);
   const [selectedGroupItem, setSelectedGroupItem] = useState<RegistryItem | null>(null);
   const [notificationToast, setNotificationToast] = useState<string | null>(null);
+
+  // Check URL parameters on mount (?admin=true or /admin or #admin)
+  useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const isPathAdmin = window.location.pathname.includes('/admin') || window.location.hash.includes('admin');
+      if (searchParams.get('admin') === 'true' || isPathAdmin) {
+        const isAuth = localStorage.getItem('kalyanam_admin_auth') === 'true';
+        if (isAuth) {
+          setCurrentRole('couple');
+        } else {
+          setIsAdminPinModalOpen(true);
+        }
+      }
+    } catch (e) {
+      console.error('URL check error:', e);
+    }
+  }, []);
+
+  const handleRequestCoupleRole = () => {
+    const isAuth = localStorage.getItem('kalyanam_admin_auth') === 'true';
+    if (isAuth) {
+      setCurrentRole('couple');
+      try {
+        window.history.pushState(null, '', '/?admin=true');
+      } catch (e) {}
+    } else {
+      setIsAdminPinModalOpen(true);
+    }
+  };
+
+  const handleAdminPinSuccess = () => {
+    localStorage.setItem('kalyanam_admin_auth', 'true');
+    setCurrentRole('couple');
+    try {
+      window.history.pushState(null, '', '/?admin=true');
+    } catch (e) {}
+    showToast('Passcode confirmed! Welcome to Oyeshi & Nishant\'s Couple Admin.');
+  };
 
   // Sync to local storage whenever core state changes
   useEffect(() => {
@@ -270,12 +313,12 @@ export default function App() {
       status: 'available',
     };
     setItems((prev) => [newItem, ...prev]);
-    showToast(`Added "${newItem.title}" to wedding registry!`);
+    showToast(`Added "${newItem.title}" to wishlist!`);
   };
 
   const handleDeleteItem = (itemId: string) => {
     setItems((prev) => prev.filter((i) => i.id !== itemId));
-    showToast('Item removed from registry.');
+    showToast('Item removed from wishlist.');
   };
 
   const handleToggleShagunReceived = (shagunId: string) => {
@@ -346,6 +389,7 @@ export default function App() {
         onRoleChange={setCurrentRole}
         onOpenAddressDrawer={() => setIsAddressDrawerOpen(true)}
         onOpenGuestLogin={() => setIsGuestLoginOpen(true)}
+        onOpenShareModal={() => setIsShareModalOpen(true)}
         onFastForwardAllReservations={handleFastForwardAllReservations}
       />
 
@@ -362,7 +406,13 @@ export default function App() {
           onToggleShagunThankYou={handleToggleShagunThankYou}
           onToggleContributionReceived={handleToggleContributionReceived}
           onManuallyReleaseReservation={handleManuallyReleaseReservation}
-          onSwitchToGuestView={() => setCurrentRole('guest')}
+          onSwitchToGuestView={() => {
+            try {
+              window.history.pushState(null, '', '/');
+            } catch (e) {}
+            setCurrentRole('guest');
+          }}
+          onOpenShareModal={() => setIsShareModalOpen(true)}
         />
       ) : (
         <main className="flex-1">
@@ -381,6 +431,8 @@ export default function App() {
             currentGuest={currentGuest}
             onOpenReserve={(item) => setSelectedReserveItem(item)}
             onOpenGroupGift={(item) => setSelectedGroupItem(item)}
+            onOpenShagun={() => setIsShagunModalOpen(true)}
+            onOpenAddress={() => setIsAddressDrawerOpen(true)}
             onFastForwardAllReservations={handleFastForwardAllReservations}
           />
 
@@ -491,6 +543,25 @@ export default function App() {
         currentGuest={currentGuest}
       />
 
+      {/* Shareable Links & Access Modal (Couple/Admin Only) */}
+      {currentRole === 'couple' && (
+        <ShareAccessModal
+          wedding={wedding}
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          onSwitchToCoupleMode={handleRequestCoupleRole}
+          currentRole={currentRole}
+        />
+      )}
+
+      {/* Admin Passcode Gate Modal */}
+      <AdminPinModal
+        isOpen={isAdminPinModalOpen}
+        onClose={() => setIsAdminPinModalOpen(false)}
+        onSuccess={handleAdminPinSuccess}
+        currentPin={wedding.adminPin || '2026'}
+      />
+
       {/* Footer */}
       <footer className="bg-[#240B11] text-[#D8C7B5] py-12 px-4 sm:px-6 lg:px-8 border-t border-[#4A1521] text-xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
@@ -503,7 +574,7 @@ export default function App() {
                 {wedding.brideName} <span className="font-editorial italic text-[#C5A880]">&</span> {wedding.groomName}
               </p>
               <p className="text-[11px] text-[#A69588] font-light">
-                Wedding Registry & Direct UPI Shagun
+                Wishlist
               </p>
             </div>
           </div>
@@ -513,11 +584,18 @@ export default function App() {
             <span className="text-[#5A2530]">•</span>
             <span>External Retailer Linkouts</span>
             <span className="text-[#5A2530]">•</span>
-            <span>48-Hour Collision Prevention</span>
+            <span>48-Hour Hold on Gifts</span>
           </div>
 
-          <div className="text-center md:text-right text-[11px] text-[#A69588] font-light">
-            With love, {wedding.brideName} & {wedding.groomName}
+          <div className="flex items-center gap-3 text-center md:text-right text-[11px] text-[#A69588] font-light">
+            <span>With love, {wedding.brideName} & {wedding.groomName}</span>
+            <span className="text-[#5A2530]">•</span>
+            <button
+              onClick={handleRequestCoupleRole}
+              className="text-[#A69588] hover:text-[#FAF7F2] transition-colors underline"
+            >
+              Couple Login
+            </button>
           </div>
         </div>
       </footer>

@@ -135,7 +135,7 @@ export const ShagunModal: React.FC<ShagunModalProps> = ({
             </div>
             <div>
               <h3 className="font-serif text-xl font-normal tracking-wide text-[#FAF7F2]">
-                Offer Shagun Blessing
+                Send a Blessing & Gift
               </h3>
               <p className="text-xs text-[#D8C7B5] font-light">Direct to couple's bank via UPI • Zero deductions</p>
             </div>
@@ -152,13 +152,13 @@ export const ShagunModal: React.FC<ShagunModalProps> = ({
         <div className="p-6 sm:p-7 overflow-y-auto space-y-5 text-[#3E342F]">
           {activeStep === 'details' ? (
             <div className="space-y-4">
-              {/* Shagun Presets */}
+              {/* Blessing Presets */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-medium uppercase tracking-[0.15em] text-[#9C7A4E]">
-                    Auspicious Shagun
+                    Blessing Amount
                   </label>
-                  <span className="text-[11px] text-[#7A6D63] font-light">Includes lucky ₹1 shagun coin</span>
+                  <span className="text-[11px] text-[#7A6D63] font-light">Includes auspicious ₹1</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5">
